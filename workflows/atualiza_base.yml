@@ -2,7 +2,7 @@ name: Atualizar Base de Dados
 
 on:
   schedule:
-    - cron: '1 9 * * *'  # Executa todo dia às 6h UTC
+    - cron: '1 9 * * *'  # Executa todo dia às 19h UTC
   workflow_dispatch:      # Permite rodar manualmente pelo GitHub
 
 jobs:
