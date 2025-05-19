@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Mac OS specific
+.DS_Store
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Local env files
+.env
+.env.local
+
+# IDE specific files
+.idea/
+.vscode/
