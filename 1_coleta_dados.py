@@ -66,7 +66,8 @@ def coletar_cotacoes(dados_da_bolsa):
 ### Output para verificar os resultados
 
 
-if __name__ == "__main__":
+def executar_coleta():
+    """Função principal para executar a coleta de dados"""
     today = datetime.date.today()
     print(f"Iniciando coleta de dados: {today}")
     
@@ -86,3 +87,10 @@ if __name__ == "__main__":
     print(f"Cotações salvas em {pasta}/cotacoes.parquet")
     
     print("Coleta de dados concluída com sucesso!")
+    return dados_da_bolsa, cotacoes
+
+if __name__ == "__main__":
+    executar_coleta()
+else:
+    # Quando importado como módulo, executar coleta
+    executar_coleta()

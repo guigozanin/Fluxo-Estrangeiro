@@ -99,3 +99,6 @@ if __name__ == "__main__":
     if fluxo_atual is not None:
         print("Processamento de dados concluído com sucesso!")
         print(f"Últimos registros do fluxo do ano atual:\n{fluxo_atual.tail()}")
+else:
+    # Quando importado como módulo, executar processamento
+    processar_dados_para_analise()

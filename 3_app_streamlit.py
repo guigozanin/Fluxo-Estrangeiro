@@ -37,6 +37,14 @@ def carregar_dados(pasta="Dados", atualizar=False):
         "fluxo_total.parquet"
     ]
     
+    # Criar a pasta de dados se não existir
+    if not os.path.exists(pasta):
+        try:
+            os.makedirs(pasta)
+            st.info(f"Pasta {pasta} criada com sucesso.")
+        except Exception as e:
+            st.warning(f"Erro ao criar pasta {pasta}: {str(e)}")
+            
     # Verificar se os arquivos existem
     arquivos_ausentes = [f for f in arquivos_necessarios if not os.path.exists(f"{pasta}/{f}")]
     
@@ -44,12 +52,29 @@ def carregar_dados(pasta="Dados", atualizar=False):
     if arquivos_ausentes or atualizar:
         with st.spinner("Atualizando dados do mercado..."):
             st.info("Coletando dados da B3 e Yahoo Finance...")
-            # Executar o script de coleta de dados
-            subprocess.run(["python", "1_coleta_dados.py"], check=True)
-            
-            st.info("Processando dados coletados...")
-            # Executar o script de processamento de dados
-            subprocess.run(["python", "2_processa_dados.py"], check=True)
+            try:
+                # Importar o módulo em vez de executá-lo como um script separado
+                import importlib.util
+                import sys
+                
+                # Importar script de coleta de dados
+                spec = importlib.util.spec_from_file_location("coleta_dados", 
+                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "1_coleta_dados.py"))
+                coleta_dados = importlib.util.module_from_spec(spec)
+                sys.modules["coleta_dados"] = coleta_dados
+                spec.loader.exec_module(coleta_dados)
+                
+                st.info("Processando dados coletados...")
+                # Importar script de processamento de dados
+                spec = importlib.util.spec_from_file_location("processa_dados", 
+                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "2_processa_dados.py"))
+                processa_dados = importlib.util.module_from_spec(spec)
+                sys.modules["processa_dados"] = processa_dados
+                spec.loader.exec_module(processa_dados)
+            except Exception as e:
+                st.error(f"Erro ao atualizar dados: {str(e)}")
+                st.warning("Continuando com os dados existentes...")
+                # Caso a atualização falhe, seguimos com os dados existentes
     
     # Carregar os dados processados
     fluxo_completo = pd.read_parquet(f"{pasta}/fluxo_completo.parquet")
@@ -150,11 +175,15 @@ def main():
     
     # Carregar dados - sem botão de atualizar por enquanto
     atualizar_dados = False
-    fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=atualizar_dados)
-    
-    # Obter a data mais recente dos dados
-    ultima_data = fluxo_completo["Data"].max().strftime("%d/%m/%Y")
-    st.write(f"Dados atualizados até: {ultima_data}")
+    try:
+        fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=atualizar_dados)
+        
+        # Obter a data mais recente dos dados
+        ultima_data = fluxo_completo["Data"].max().strftime("%d/%m/%Y")
+        st.write(f"Dados atualizados até: {ultima_data}")
+    except Exception as e:
+        st.error(f"Erro ao carregar dados: {str(e)}")
+        st.stop()  # Para a execução do aplicativo se não houver dados
     
     # Mostrar métricas relevantes
     col1, col2, col3 = st.columns(3)
@@ -187,7 +216,11 @@ def main():
             atualizar_dados = st.button("Atualizar Dados")
             if atualizar_dados:
                 with st.spinner("Atualizando dados do mercado..."):
-                    fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=True)
+                    try:
+                        fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=True)
+                        st.success("Dados atualizados com sucesso!")
+                    except Exception as e:
+                        st.error(f"Erro ao atualizar dados: {str(e)}")
         
         fig_ano_atual = criar_grafico(
             fluxo_ano_atual, 
