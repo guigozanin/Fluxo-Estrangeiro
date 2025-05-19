@@ -1,0 +1,35 @@
+name: Atualizar Base de Dados
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Executa todo dia às 6h UTC
+  workflow_dispatch:      # Permite rodar manualmente pelo GitHub
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Executar coleta de dados
+        run: python 1_coleta_dados.py
+
+      - name: Commit e push dos dados atualizados
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Atualização automática da base de dados [skip ci]" || echo "Nada para commitar"
+          git push
