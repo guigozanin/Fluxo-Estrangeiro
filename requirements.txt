@@ -5,3 +5,4 @@ streamlit
 requests
 pyarrow  # Para suporte a arquivos parquet
 plotly    # Para gráficos interativos
+lxml
