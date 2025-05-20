@@ -9,6 +9,7 @@ import yfinance as yf
 import requests
 import os
 import datetime
+import lxml
 
 def criar_pasta_dados():
     """Cria a pasta 'Dados' se não existir"""
