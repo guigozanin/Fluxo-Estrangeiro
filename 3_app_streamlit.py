@@ -184,10 +184,11 @@ def main():
         with col1:
             st.header(f"Fluxo Estrangeiro em {ano_atual}")
         with col2:
-            atualizar_dados = st.button("Atualizar Dados")
-            if atualizar_dados:
-                with st.spinner("Atualizando dados do mercado..."):
-                    fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=True)
+            st.header(f"")
+        #    atualizar_dados = st.button("Atualizar Dados")
+        #    if atualizar_dados:
+        #        with st.spinner("Atualizando dados do mercado..."):
+        #            fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=True)
         
         fig_ano_atual = criar_grafico(
             fluxo_ano_atual, 
