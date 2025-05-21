@@ -4,9 +4,8 @@ on:
   push:
     branches: [ 'main' ]
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 13 * * *'
   workflow_dispatch:
-
 
 jobs:
   update-data:
@@ -14,9 +13,6 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4
-
-      - name: Clonar repositório
         uses: actions/checkout@v4
 
       - name: Configurar Python
@@ -29,8 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Executar coleta de dados
+      - name: Coletar dados
         run: python 1_coleta_dados.py
+
+      - name: Processar dados
+        run: python 2_processa_dados.py
 
       - name: Commit e push dos dados atualizados
         run: |
