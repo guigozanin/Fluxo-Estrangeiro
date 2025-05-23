@@ -11,6 +11,7 @@ import datetime
 import os
 import subprocess
 import locale
+import markdown
 
 # Configurar localização para português
 try:
