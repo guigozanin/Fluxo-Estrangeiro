@@ -86,7 +86,7 @@ def criar_grafico(dados, titulo):
             x=dados_formatados['Data'],
             y=dados_formatados['Ibovespa'],
             name="Ibovespa",
-            line=dict(color='white', width=2),
+            line=dict(color='gold', width=2),
             hovertemplate='Data: %{x|%d/%m/%Y}<br>Ibovespa: %{y:.2f} pontos<extra></extra>'
         ),
         secondary_y=True,
@@ -140,7 +140,7 @@ def main():
     col1, col2 = st.columns([4, 1])
     with col1:
         st.title("Fluxo Estrangeiro de Investimentos na B3")
-        st.write("AfterMarketFL.com.br")
+        st.markdown('[AfterMarketFL.com.br](https://aftermarketfl.com.br)', unsafe_allow_html=True)
     with col2:
         st.image("amfl_selo_gradiente_sem_fundo.png", width=150)
     
