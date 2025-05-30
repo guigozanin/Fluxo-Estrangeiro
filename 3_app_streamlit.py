@@ -11,7 +11,6 @@ import datetime
 import os
 import subprocess
 import locale
-import markdown
 
 # Configurar localização para português
 try:
@@ -29,6 +28,155 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Aplicar tema dark
+st.markdown("""
+<style>
+    /* Reset e configurações globais */
+    html, body, [class*="css"] {
+        background-color: #0e1117 !important;
+        color: #f0f2f6 !important;
+    }
+    
+    /* Elementos principais da interface */
+    .main, .stApp, .css-1d391kg, .block-container {
+        background-color: #0e1117 !important;
+        font-family: "Inter", sans-serif;
+    }
+    
+    /* Sidebar e componentes */
+    .sidebar .sidebar-content, [data-testid="stSidebar"] {
+        background-color: #1a1c24 !important;
+        border-right: 1px solid #2d323b !important;
+    }
+    
+    /* Headers e textos */
+    h1, h2, h3, h4, h5, h6 {
+        color: #f0f2f6 !important;
+    }
+    
+    p, span, div {
+        color: #f0f2f6 !important;
+    }
+    
+    /* Inputs, botões e selects */
+    .stTextInput input, .stNumberInput input, .stDateInput input, 
+    .stSelectbox > div, .stMultiSelect > div {
+        background-color: #262730 !important;
+        color: #f0f2f6 !important;
+        border-color: #4a4f60 !important;
+    }
+    
+    /* Botões */
+    button, .stButton button, div[data-testid="stButton"] button {
+        background-color: #262730 !important;
+        color: #f0f2f6 !important;
+        border-color: #4a4f60 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    button:hover, .stButton button:hover {
+        background-color: #3a3f4a !important;
+        border-color: #58FFE9 !important;
+    }
+    
+    /* Botões de download */
+    .stDownloadButton button {
+        background-color: #1e3a8a !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 4px !important;
+        transition: background-color 0.3s !important;
+    }
+    
+    .stDownloadButton button:hover {
+        background-color: #2563eb !important;
+    }
+    
+    /* Tabs e componentes interativos */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: #1a1c24 !important;
+        border-radius: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        color: #f0f2f6 !important;
+    }
+    
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #3a55c5 !important;
+    }
+    
+    /* Data frames e tabelas */
+    .dataframe, .css-1b0udgb, .stDataFrame {
+        background-color: #262730 !important;
+        color: #f0f2f6 !important;
+    }
+    
+    .dataframe th {
+        background-color: #3a3f4a !important;
+        color: white !important;
+    }
+    
+    .dataframe td {
+        background-color: #262730 !important;
+        color: #f0f2f6 !important;
+    }
+    
+    /* Métricas */
+    [data-testid="stMetric"] {
+        background-color: #1a1c24 !important;
+        border-radius: 10px !important;
+        padding: 1rem !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+    }
+    
+    [data-testid="stMetric"] label {
+        color: #a3a8b8 !important;
+    }
+    
+    [data-testid="stMetricValue"] {
+        color: #f0f2f6 !important;
+    }
+    
+    [data-testid="stMetricDelta"] {
+        color: #58FFE9 !important;
+    }
+    
+    [data-testid="stMetricDelta"][data-direction="down"] {
+        color: #ff5f71 !important;
+    }
+    
+    /* Links */
+    a {
+        color: #58FFE9 !important;
+        text-decoration: none !important;
+    }
+    
+    a:hover {
+        text-decoration: underline !important;
+    }
+    
+    /* Scrollbars personalizadas */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #1a1c24;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #4a4f60;
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #5a6072;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 def carregar_dados(pasta="Dados", atualizar=False):
     """Carrega os dados processados ou executa a atualização se solicitado"""
@@ -87,7 +235,7 @@ def criar_grafico(dados, titulo):
             x=dados_formatados['Data'],
             y=dados_formatados['Ibovespa'],
             name="Ibovespa",
-            line=dict(color='gold', width=2),
+            line=dict(color='#FFD700', width=2),
             hovertemplate='Data: %{x|%d/%m/%Y}<br>Ibovespa: %{y:.2f} pontos<extra></extra>'
         ),
         secondary_y=True,
@@ -110,9 +258,14 @@ def criar_grafico(dados, titulo):
             yanchor="bottom",
             y=1.02,
             xanchor="center",
-            x=0.5
+            x=0.5,
+            font=dict(color="#f0f2f6")
         ),
-        height=600
+        height=600,
+        template="plotly_dark",
+        plot_bgcolor="#0e1117",
+        paper_bgcolor="#0e1117",
+        font=dict(color="#f0f2f6")
     )
     
     fig.update_xaxes(
@@ -120,12 +273,16 @@ def criar_grafico(dados, titulo):
         tickangle=45,
         rangeslider_visible=False,
         tickformat="%d/%m/%Y",
-        hoverformat="%d/%m/%Y"
+        hoverformat="%d/%m/%Y",
+        gridcolor="#2d3035",
+        zerolinecolor="#4a4f60"
     )
     
     fig.update_yaxes(
         title_text="Estrangeiro (Milhões R$)",
-        secondary_y=False
+        secondary_y=False,
+        gridcolor="#2d3035",
+        zerolinecolor="#4a4f60"
     )
     
     fig.update_yaxes(
@@ -151,11 +308,15 @@ def main():
     
     # Carregar dados - sem botão de atualizar por enquanto
     atualizar_dados = False
-    fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=atualizar_dados)
-    
-    # Obter a data mais recente dos dados
-    ultima_data = fluxo_completo["Data"].max().strftime("%d/%m/%Y")
-    st.write(f"Dados atualizados até: {ultima_data}")
+    try:
+        fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=atualizar_dados)
+        
+        # Obter a data mais recente dos dados
+        ultima_data = fluxo_completo["Data"].max().strftime("%d/%m/%Y")
+        st.write(f"Dados atualizados até: {ultima_data}")
+    except Exception as e:
+        st.error(f"Erro ao carregar dados: {str(e)}")
+        st.stop()  # Para a execução do aplicativo se não houver dados
     
     # Mostrar métricas relevantes
     col1, col2, col3 = st.columns(3)
@@ -185,11 +346,14 @@ def main():
         with col1:
             st.header(f"Fluxo Estrangeiro em {ano_atual}")
         with col2:
-            st.header(f"")
-        #    atualizar_dados = st.button("Atualizar Dados")
-        #    if atualizar_dados:
-        #        with st.spinner("Atualizando dados do mercado..."):
-        #            fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=True)
+            atualizar_dados = st.button("Atualizar Dados")
+            if atualizar_dados:
+                with st.spinner("Atualizando dados do mercado..."):
+                    try:
+                        fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=True)
+                        st.success("Dados atualizados com sucesso!")
+                    except Exception as e:
+                        st.error(f"Erro ao atualizar dados: {str(e)}")
         
         fig_ano_atual = criar_grafico(
             fluxo_ano_atual, 
@@ -228,7 +392,7 @@ def main():
                 x=dados_diarios['Data'],
                 y=dados_diarios['Ibovespa'],
                 name="Ibovespa",
-                line=dict(color='white', width=2),
+                line=dict(color='#FFD700', width=2),
                 hovertemplate='Data: %{x|%d/%m/%Y}<br>Ibovespa: %{y:.2f} pontos<extra></extra>'
             ),
             secondary_y=True,
@@ -251,9 +415,14 @@ def main():
                 yanchor="bottom",
                 y=1.02,
                 xanchor="center",
-                x=0.5
+                x=0.5,
+                font=dict(color="#f0f2f6")
             ),
-            height=600
+            height=600,
+            template="plotly_dark",
+            plot_bgcolor="#0e1117",
+            paper_bgcolor="#0e1117",
+            font=dict(color="#f0f2f6")
         )
         
         fig_diario.update_xaxes(
@@ -261,17 +430,23 @@ def main():
             tickangle=45,
             rangeslider_visible=False,
             tickformat="%d/%m/%Y",
-            hoverformat="%d/%m/%Y"
+            hoverformat="%d/%m/%Y",
+            gridcolor="#2d3035",
+            zerolinecolor="#4a4f60"
         )
         
         fig_diario.update_yaxes(
             title_text="Estrangeiro Diário (Milhões R$)",
-            secondary_y=False
+            secondary_y=False,
+            gridcolor="#2d3035",
+            zerolinecolor="#4a4f60"
         )
         
         fig_diario.update_yaxes(
             title_text="Ibovespa (pontos)",
-            secondary_y=True
+            secondary_y=True,
+            gridcolor="#2d3035",
+            zerolinecolor="#4a4f60"
         )
         
         st.plotly_chart(fig_diario, use_container_width=True)
