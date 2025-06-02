@@ -312,8 +312,13 @@ def main():
         fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=atualizar_dados)
         
         # Obter a data mais recente dos dados
-        ultima_data = fluxo_completo["Data"].max().strftime("%d/%m/%Y")
-        st.write(f"Dados atualizados até: {ultima_data}")
+        data_max = fluxo_completo["Data"].max()
+        # Verificar se a data é NaT (Not a Time)
+        if pd.notna(data_max):
+            ultima_data = data_max.strftime("%d/%m/%Y")
+            st.write(f"Dados atualizados até: {ultima_data}")
+        else:
+            st.warning("Não foi possível determinar a data mais recente dos dados.")
     except Exception as e:
         st.error(f"Erro ao carregar dados: {str(e)}")
         st.stop()  # Para a execução do aplicativo se não houver dados
@@ -461,8 +466,13 @@ def main():
         
         with col2:
             max_valor = dados_diarios["Estrangeiro"].max()
-            max_data = dados_diarios.loc[dados_diarios["Estrangeiro"] == max_valor, "Data"].iloc[0].strftime("%d/%m/%Y")
-            st.metric("Maior Fluxo Diário", f"R$ {max_valor:.2f} milhões", f"em {max_data}")
+            # Verificar se existem registros com o valor máximo
+            max_data_series = dados_diarios.loc[dados_diarios["Estrangeiro"] == max_valor, "Data"]
+            if not max_data_series.empty and pd.notna(max_data_series.iloc[0]):
+                max_data = max_data_series.iloc[0].strftime("%d/%m/%Y")
+                st.metric("Maior Fluxo Diário", f"R$ {max_valor:.2f} milhões", f"em {max_data}")
+            else:
+                st.metric("Maior Fluxo Diário", f"R$ {max_valor:.2f} milhões")
     
     with tab3:
         st.header("Dados Brutos")
