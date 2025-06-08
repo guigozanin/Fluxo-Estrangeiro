@@ -326,19 +326,29 @@ def main():
     # Mostrar métricas relevantes
     col1, col2, col3 = st.columns(3)
     
+    # Verificar se os DataFrames têm dados antes de acessá-los
     with col1:
-        fluxo_ano = fluxo_ano_atual["Estrangeiro"].iloc[-1]
-        st.metric("Fluxo Estrangeiro Acumulado no Ano", f"R$ {fluxo_ano:.2f} milhões")
+        if not fluxo_ano_atual.empty and len(fluxo_ano_atual["Estrangeiro"]) > 0:
+            fluxo_ano = fluxo_ano_atual["Estrangeiro"].iloc[-1]
+            st.metric("Fluxo Estrangeiro Acumulado no Ano", f"R$ {fluxo_ano:.2f} milhões")
+        else:
+            st.metric("Fluxo Estrangeiro Acumulado no Ano", "Dados não disponíveis")
 
     with col2:
-        ultimo_fluxo_diario = fluxo_completo["Estrangeiro"].iloc[-1]
-        st.metric("Último Valor Diário", f"R$ {ultimo_fluxo_diario:.2f} milhões")
+        if not fluxo_completo.empty and len(fluxo_completo["Estrangeiro"]) > 0:
+            ultimo_fluxo_diario = fluxo_completo["Estrangeiro"].iloc[-1]
+            st.metric("Último Valor Diário", f"R$ {ultimo_fluxo_diario:.2f} milhões")
+        else:
+            st.metric("Último Valor Diário", "Dados não disponíveis")
         
     with col3:
-        ibov_atual = fluxo_completo["Ibovespa"].iloc[-1]
-        ibov_anterior = fluxo_completo["Ibovespa"].iloc[-2]
-        delta = (ibov_atual - ibov_anterior) / ibov_anterior * 100
-        st.metric("Ibovespa Atual", f"{ibov_atual:.2f} pontos", f"{delta:.2f}%")
+        if not fluxo_completo.empty and len(fluxo_completo["Ibovespa"]) > 1:
+            ibov_atual = fluxo_completo["Ibovespa"].iloc[-1]
+            ibov_anterior = fluxo_completo["Ibovespa"].iloc[-2]
+            delta = (ibov_atual - ibov_anterior) / ibov_anterior * 100
+            st.metric("Ibovespa Atual", f"{ibov_atual:.2f} pontos", f"{delta:.2f}%")
+        else:
+            st.metric("Ibovespa Atual", "Dados não disponíveis")
     
     # Tabs para diferentes visualizações
     tab1, tab2, tab3 = st.tabs(["Fluxo Acumulado", "Fluxo Diário", "Dados"])
@@ -360,15 +370,24 @@ def main():
                     except Exception as e:
                         st.error(f"Erro ao atualizar dados: {str(e)}")
         
-        fig_ano_atual = criar_grafico(
-            fluxo_ano_atual, 
-            f"Fluxo Estrangeiro de Investimentos Acumulados na B3"
-        )
-        st.plotly_chart(fig_ano_atual, use_container_width=True)
+        # Verificar se há dados para criar o gráfico
+        if not fluxo_ano_atual.empty:
+            fig_ano_atual = criar_grafico(
+                fluxo_ano_atual, 
+                f"Fluxo Estrangeiro de Investimentos Acumulados na B3"
+            )
+            st.plotly_chart(fig_ano_atual, use_container_width=True)
+        else:
+            st.warning("Não há dados disponíveis para exibir o gráfico de fluxo acumulado.")
     
     with tab2:
         st.header("Fluxo Estrangeiro Diário")
         
+        # Verificar se há dados para exibir
+        if fluxo_completo.empty:
+            st.warning("Não há dados disponíveis para exibir o fluxo diário.")
+            return
+            
         # Configurando a visualização para dados diários (não acumulados)
         dados_diarios = fluxo_completo.copy()
         
@@ -461,18 +480,24 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            ultimo_valor = dados_diarios["Estrangeiro"].iloc[-1]
-            st.metric("Último Valor Diário", f"R$ {ultimo_valor:.2f} milhões")
+            if not dados_diarios.empty and len(dados_diarios["Estrangeiro"]) > 0:
+                ultimo_valor = dados_diarios["Estrangeiro"].iloc[-1]
+                st.metric("Último Valor Diário", f"R$ {ultimo_valor:.2f} milhões")
+            else:
+                st.metric("Último Valor Diário", "Dados não disponíveis")
         
         with col2:
-            max_valor = dados_diarios["Estrangeiro"].max()
-            # Verificar se existem registros com o valor máximo
-            max_data_series = dados_diarios.loc[dados_diarios["Estrangeiro"] == max_valor, "Data"]
-            if not max_data_series.empty and pd.notna(max_data_series.iloc[0]):
-                max_data = max_data_series.iloc[0].strftime("%d/%m/%Y")
-                st.metric("Maior Fluxo Diário", f"R$ {max_valor:.2f} milhões", f"em {max_data}")
+            if not dados_diarios.empty and len(dados_diarios["Estrangeiro"]) > 0:
+                max_valor = dados_diarios["Estrangeiro"].max()
+                # Verificar se existem registros com o valor máximo
+                max_data_series = dados_diarios.loc[dados_diarios["Estrangeiro"] == max_valor, "Data"]
+                if not max_data_series.empty and pd.notna(max_data_series.iloc[0]):
+                    max_data = max_data_series.iloc[0].strftime("%d/%m/%Y")
+                    st.metric("Maior Fluxo Diário", f"R$ {max_valor:.2f} milhões", f"em {max_data}")
+                else:
+                    st.metric("Maior Fluxo Diário", f"R$ {max_valor:.2f} milhões")
             else:
-                st.metric("Maior Fluxo Diário", f"R$ {max_valor:.2f} milhões")
+                st.metric("Maior Fluxo Diário", "Dados não disponíveis")
     
     with tab3:
         st.header("Dados Brutos")
@@ -503,6 +528,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
 
 
