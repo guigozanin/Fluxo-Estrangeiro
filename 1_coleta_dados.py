@@ -7,13 +7,45 @@ Este script coleta dados de fluxo estrangeiro e cotações do mercado financeiro
 # Verifica se sendo executado diretamente ou importado como módulo
 
 
-
-import pandas as pd
-import yfinance as yf
-import requests
+# Verifica se sendo executado diretamente ou importado como módulo
+import sys
 import os
+import subprocess
+
+# Tenta instalar pandas e outras dependências se não estiverem disponíveis
+try:
+    import pandas as pd
+except ImportError:
+    print("Instalando pandas...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas"])
+    import pandas as pd
+
+try:
+    import yfinance as yf
+except ImportError:
+    print("Instalando yfinance...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "yfinance"])
+    import yfinance as yf
+
+try:
+    import lxml
+except ImportError:
+    print("Instalando lxml...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "lxml"])
+    import lxml
+
+try:
+    import requests
+except ImportError:
+    print("Instalando requests...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "requests"])
+    import requests
+
 import datetime
-import lxml
+
+
+
+
 
 def criar_pasta_dados():
     """Cria a pasta 'Dados' se não existir"""
