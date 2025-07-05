@@ -6,7 +6,7 @@ Este script coleta dados de fluxo estrangeiro e cotações do mercado financeiro
 
 # Verifica se sendo executado diretamente ou importado como módulo
 
-pip install pandas
+
 
 import pandas as pd
 import yfinance as yf
