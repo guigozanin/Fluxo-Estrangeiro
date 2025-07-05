@@ -3,13 +3,17 @@ Fluxo Estrangeiro de Investimentos na B3 - Coleta de Dados
 Este script coleta dados de fluxo estrangeiro e cotações do mercado financeiro.
 """
 
-# Bibliotecas
-import pandas as pd
-import yfinance as yf
-import requests
-import os
-import datetime
-import lxml
+
+# Verifica se sendo executado diretamente ou importado como módulo
+import sys
+if not sys.modules.get('streamlit'):
+    # Bibliotecas
+    import pandas as pd
+    import yfinance as yf
+    import requests
+    import os
+    import datetime
+    import lxml
 
 def criar_pasta_dados():
     """Cria a pasta 'Dados' se não existir"""
