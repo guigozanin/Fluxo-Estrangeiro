@@ -3,15 +3,40 @@ Fluxo Estrangeiro de Investimentos na B3 - Coleta de Dados
 Este script coleta dados de fluxo estrangeiro e cotações do mercado financeiro.
 """
 
-# Bibliotecas
-import pandas as pd
-import yfinance as yf
-import requests
+# Verifica se sendo executado diretamente ou importado como módulo
+import sys
 import os
+
+# IMPORTS: não instalar em runtime — dependências devem estar em requirements.txt
+try:
+    import pandas as pd
+except Exception as e:
+    raise ImportError(
+        "O módulo 'pandas' não está instalado. Adicione 'pandas' em requirements.txt e redeploy ou instale no ambiente: `pip install pandas`"
+    ) from e
+
+try:
+    import yfinance as yf
+except Exception as e:
+    raise ImportError(
+        "O módulo 'yfinance' não está instalado. Adicione 'yfinance' em requirements.txt e redeploy ou instale no ambiente: `pip install yfinance`"
+    ) from e
+
+try:
+    import lxml
+except Exception as e:
+    raise ImportError(
+        "O módulo 'lxml' não está instalado. Adicione 'lxml' em requirements.txt e redeploy ou instale no ambiente: `pip install lxml`"
+    ) from e
+
+try:
+    import requests
+except Exception as e:
+    raise ImportError(
+        "O módulo 'requests' não está instalado. Adicione 'requests' em requirements.txt e redeploy ou instale no ambiente: `pip install requests`"
+    ) from e
+
 import datetime
-import lxml
-
-
 
 def criar_pasta_dados():
     """Cria a pasta 'Dados' se não existir"""
@@ -63,3 +88,29 @@ def coletar_cotacoes(dados_da_bolsa):
     cotacoes_pd["Data"] = cotacoes_pd["Data"].dt.tz_localize(None)
     
     return cotacoes_pd
+
+
+# ==============================
+### Output para verificar os resultados
+
+
+if __name__ == "__main__":
+    today = datetime.date.today()
+    print(f"Iniciando coleta de dados: {today}")
+    
+    # Cria pasta para armazenar os dados
+    pasta = criar_pasta_dados()
+    
+    # Coleta dados do fluxo estrangeiro
+    dados_da_bolsa = coletar_dados_fluxo()
+    
+    # Salva os dados em formato parquet
+    dados_da_bolsa.to_parquet(f"{pasta}/dados_da_bolsa.parquet")
+    print(f"Dados do fluxo estrangeiro salvos em {pasta}/dados_da_bolsa.parquet")
+    
+    # Coleta cotações
+    cotacoes = coletar_cotacoes(dados_da_bolsa)
+    cotacoes.to_parquet(f"{pasta}/cotacoes.parquet")
+    print(f"Cotações salvas em {pasta}/cotacoes.parquet")
+    
+    print("Coleta de dados concluída com sucesso!")
