@@ -87,15 +87,3 @@ def processar_dados_para_analise():
     fluxo_total.to_parquet(f"{pasta}/fluxo_total.parquet")
     
     return fluxo_ano_atual
-
-# ==============================
-### Output para verificar os resultados
-
-if __name__ == "__main__":
-    today = datetime.date.today()
-    print(f"Iniciando processamento de dados: {today}")
-    
-    fluxo_atual = processar_dados_para_analise()
-    if fluxo_atual is not None:
-        print("Processamento de dados concluído com sucesso!")
-        print(f"Últimos registros do fluxo do ano atual:\n{fluxo_atual.tail()}")
