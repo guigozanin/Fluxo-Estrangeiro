@@ -178,45 +178,34 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-from 1_coleta_dados import (
-    criar_pasta_dados,
-    coletar_dados_fluxo,
-    coletar_cotacoes
-)
-
-from 2_processa_dados import (
-    mesclar_dados,
-    calcular_fluxo_acumulado
-)
-
-
 def carregar_dados(pasta="Dados", atualizar=False):
-    criar_pasta_dados()
-
-    if atualizar or not os.path.exists(f"{pasta}/fluxo_completo.parquet"):
+    """Carrega os dados processados ou executa a atualização se solicitado"""
+    arquivos_necessarios = [
+        "fluxo_completo.parquet",
+        "fluxo_ano_atual.parquet",
+        "fluxo_total.parquet"
+    ]
+    
+    # Verificar se os arquivos existem
+    arquivos_ausentes = [f for f in arquivos_necessarios if not os.path.exists(f"{pasta}/{f}")]
+    
+    # Se arquivos estiverem ausentes ou se a atualização for solicitada, executar os scripts
+    if arquivos_ausentes or atualizar:
         with st.spinner("Atualizando dados do mercado..."):
-            dados_da_bolsa = coletar_dados_fluxo()
-            dados_da_bolsa.to_parquet(f"{pasta}/dados_da_bolsa.parquet")
-
-            cotacoes = coletar_cotacoes(dados_da_bolsa)
-            cotacoes.to_parquet(f"{pasta}/cotacoes.parquet")
-
-            fluxo_completo = mesclar_dados(dados_da_bolsa, cotacoes)
-            fluxo_completo.to_parquet(f"{pasta}/fluxo_completo.parquet")
-
-            ano_atual = datetime.datetime.now().year
-            fluxo_ano_atual = calcular_fluxo_acumulado(fluxo_completo, ano_atual)
-            fluxo_ano_atual.to_parquet(f"{pasta}/fluxo_ano_atual.parquet")
-
-            fluxo_total = calcular_fluxo_acumulado(fluxo_completo)
-            fluxo_total.to_parquet(f"{pasta}/fluxo_total.parquet")
-
-    return (
-        pd.read_parquet(f"{pasta}/fluxo_completo.parquet"),
-        pd.read_parquet(f"{pasta}/fluxo_ano_atual.parquet"),
-        pd.read_parquet(f"{pasta}/fluxo_total.parquet"),
-    )
-
+            st.info("Coletando dados da B3 e Yahoo Finance...")
+            # Executar o script de coleta de dados
+            subprocess.run(["python", "1_coleta_dados.py"], check=True)
+            
+            st.info("Processando dados coletados...")
+            # Executar o script de processamento de dados
+            subprocess.run(["python", "2_processa_dados.py"], check=True)
+    
+    # Carregar os dados processados
+    fluxo_completo = pd.read_parquet(f"{pasta}/fluxo_completo.parquet")
+    fluxo_ano_atual = pd.read_parquet(f"{pasta}/fluxo_ano_atual.parquet")
+    fluxo_total = pd.read_parquet(f"{pasta}/fluxo_total.parquet")
+    
+    return fluxo_completo, fluxo_ano_atual, fluxo_total
 
 def criar_grafico(dados, titulo):
     """Cria um gráfico interativo de barras e linhas para visualização dos dados de fluxo usando Plotly"""
@@ -387,7 +376,7 @@ def main():
                 fluxo_ano_atual, 
                 f"Fluxo Estrangeiro de Investimentos Acumulados na B3"
             )
-            st.plotly_chart(fig_ano_atual, width="stretch")
+            st.plotly_chart(fig_ano_atual, use_container_width=True)
         else:
             st.warning("Não há dados disponíveis para exibir o gráfico de fluxo acumulado.")
     
