@@ -387,7 +387,7 @@ def main():
                 fluxo_ano_atual, 
                 f"Fluxo Estrangeiro de Investimentos Acumulados na B3"
             )
-            st.plotly_chart(fig_ano_atual, use_container_width=True)
+            st.plotly_chart(fig_ano_atual, width="stretch")
         else:
             st.warning("Não há dados disponíveis para exibir o gráfico de fluxo acumulado.")
     
