@@ -63,29 +63,3 @@ def coletar_cotacoes(dados_da_bolsa):
     cotacoes_pd["Data"] = cotacoes_pd["Data"].dt.tz_localize(None)
     
     return cotacoes_pd
-
-
-# ==============================
-### Output para verificar os resultados
-
-
-if __name__ == "__main__":
-    today = datetime.date.today()
-    print(f"Iniciando coleta de dados: {today}")
-    
-    # Cria pasta para armazenar os dados
-    pasta = criar_pasta_dados()
-    
-    # Coleta dados do fluxo estrangeiro
-    dados_da_bolsa = coletar_dados_fluxo()
-    
-    # Salva os dados em formato parquet
-    dados_da_bolsa.to_parquet(f"{pasta}/dados_da_bolsa.parquet")
-    print(f"Dados do fluxo estrangeiro salvos em {pasta}/dados_da_bolsa.parquet")
-    
-    # Coleta cotações
-    cotacoes = coletar_cotacoes(dados_da_bolsa)
-    cotacoes.to_parquet(f"{pasta}/cotacoes.parquet")
-    print(f"Cotações salvas em {pasta}/cotacoes.parquet")
-    
-    print("Coleta de dados concluída com sucesso!")
