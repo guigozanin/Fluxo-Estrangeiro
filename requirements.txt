@@ -1,17 +1,17 @@
 # Requisitos para o projeto Fluxo Estrangeiro B3
 # Versões fixadas para garantir compatibilidade no deploy (Streamlit Cloud / Python 3.11)
 
-streamlit
-altair
-pandas
-plotly
-requests
-lxml
-yfinance
-pyarrow
-numpy
-python-dateutil
-pytz
+streamlit==1.32.0
+altair==4.2.2
+pandas==2.2.0
+plotly==5.18.0
+requests==2.31.0
+lxml==5.1.0
+yfinance==0.2.36
+pyarrow==15.0.0
+numpy==1.26.4
+python-dateutil==2.8.2
+pytz==2024.1
 markdown
 
 # Requisitos para o projeto Fluxo Estrangeiro B3
