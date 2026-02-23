@@ -3,9 +3,19 @@ Fluxo Estrangeiro de Investimentos na B3 - Processamento de Dados
 Este script processa os dados coletados e gera as análises necessárias.
 """
 
-# Bibliotecas
-import pandas as pd
+# Verifica se sendo executado diretamente ou importado como módulo
+import sys
 import os
+import subprocess
+
+# Tenta instalar pandas se não estiver disponível
+try:
+    import pandas as pd
+except ImportError:
+    print("Instalando pandas...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas"])
+    import pandas as pd
+
 import datetime
 
 def carregar_dados(pasta="Dados"):
@@ -99,6 +109,3 @@ if __name__ == "__main__":
     if fluxo_atual is not None:
         print("Processamento de dados concluído com sucesso!")
         print(f"Últimos registros do fluxo do ano atual:\n{fluxo_atual.tail()}")
-else:
-    # Quando importado como módulo, executar processamento
-    processar_dados_para_analise()
