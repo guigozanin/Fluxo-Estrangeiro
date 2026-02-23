@@ -3,6 +3,8 @@ Fluxo Estrangeiro de Investimentos na B3 - Coleta de Dados
 Este script coleta dados de fluxo estrangeiro e cotações do mercado financeiro.
 """
 
+pip install pandas
+
 # Verifica se sendo executado diretamente ou importado como módulo
 import sys
 import os
