@@ -3,23 +3,13 @@ Fluxo Estrangeiro de Investimentos na B3 - Processamento de Dados
 Este script processa os dados coletados e gera as análises necessárias.
 """
 
-# Verifica se sendo executado diretamente ou importado como módulo
 import sys
 import os
-import subprocess
-
-# Tenta instalar pandas se não estiver disponível
-try:
-    import pandas as pd
-except ImportError:
-    print("Instalando pandas...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas"])
-    import pandas as pd
-
 import datetime
 
 def carregar_dados(pasta="Dados"):
     """Carrega os dados coletados"""
+    import pandas as pd
     try:
         dados_da_bolsa = pd.read_parquet(f"{pasta}/dados_da_bolsa.parquet")
         cotacoes = pd.read_parquet(f"{pasta}/cotacoes.parquet")
@@ -30,6 +20,7 @@ def carregar_dados(pasta="Dados"):
 
 def mesclar_dados(dados_da_bolsa, cotacoes):
     """Mescla os dados de fluxo com as cotações"""
+    import pandas as pd
     # Garantir que os formatos de data são compatíveis
     dados_da_bolsa["Data"] = dados_da_bolsa["Data"].dt.tz_localize(None)
     cotacoes["Data"] = cotacoes["Data"].dt.tz_localize(None)
@@ -45,6 +36,7 @@ def mesclar_dados(dados_da_bolsa, cotacoes):
 
 def calcular_fluxo_acumulado(dados_fluxo, ano_filtro=None):
     """Calcula o fluxo acumulado para o período desejado"""
+    import pandas as pd
     # Filtrar por ano se especificado
     if ano_filtro:
         dados_filtrados = dados_fluxo[dados_fluxo["Data"].dt.year == ano_filtro]
