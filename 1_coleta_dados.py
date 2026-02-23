@@ -7,7 +7,10 @@ Este script coleta dados de fluxo estrangeiro e cotações do mercado financeiro
 import sys
 import os
 import datetime
+# Bibliotecas
 import pandas as pd
+import yfinance as yf
+import requests
 
 def criar_pasta_dados():
     """Cria a pasta 'Dados' se não existir"""
