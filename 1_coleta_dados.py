@@ -10,7 +10,6 @@ import sys
 import os
 import datetime
 
-
 def criar_pasta_dados():
     """Cria a pasta 'Dados' se não existir"""
     pasta = "Dados"
