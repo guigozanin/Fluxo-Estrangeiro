@@ -7,7 +7,10 @@ Este script coleta dados de fluxo estrangeiro e cotações do mercado financeiro
 import sys
 import os
 import datetime
-
+# Bibliotecas
+import pandas as pd
+import yfinance as yf
+import requests
 
 def criar_pasta_dados():
     """Cria a pasta 'Dados' se não existir"""
@@ -133,26 +136,31 @@ def coletar_cotacoes(dados_da_bolsa):
     cotacoes_pd = pd.DataFrame(adj.reset_index())
     cotacoes_pd = cotacoes_pd.dropna(how='all')
 
-    # Normaliza nomes (tenta detectar colunas BRL=X e IBOV/BVSP)
+    # Normaliza nomes das colunas
+    # Trata MultiIndex achatando para strings
+    if isinstance(cotacoes_pd.columns, pd.MultiIndex):
+        cotacoes_pd.columns = [" ".join(str(s) for s in col).strip() for col in cotacoes_pd.columns]
+
     cols = cotacoes_pd.columns.tolist()
-    # Garante nomes mínimos
-    if len(cols) >= 3:
-        # Mantém 'Data' como primeira coluna
-        cotacoes_pd.columns = [cols[0]] + cols[1:]
-    # Renomeia colunas conhecidas
-    rename_map = {}
-    for c in cotacoes_pd.columns[1:]:
+
+    # Renomeia a primeira coluna (Date/Datetime/index) para "Data"
+    rename_map = {cols[0]: "Data"}
+
+    # Renomeia colunas de preço conhecidas
+    for c in cols[1:]:
         name = str(c)
-        if "BRL=X" in name or "BRL=" in name or "BRL" in name:
+        if "BRL=X" in name or "BRL=" in name or ("BRL" in name and "BVSP" not in name):
             rename_map[c] = "Dólar"
         if "^BVSP" in name or "BVSP" in name or "IBOV" in name or "IBOVESPA" in name:
             rename_map[c] = "Ibovespa"
+
     cotacoes_pd = cotacoes_pd.rename(columns=rename_map)
 
     # Converte Data para timezone-naive
     try:
         cotacoes_pd["Data"] = pd.to_datetime(cotacoes_pd["Data"], errors='coerce')
-        cotacoes_pd["Data"] = cotacoes_pd["Data"].dt.tz_localize(None)
+        if cotacoes_pd["Data"].dt.tz is not None:
+            cotacoes_pd["Data"] = cotacoes_pd["Data"].dt.tz_localize(None)
     except Exception:
         # se falhar, mantém como está mas avisa
         pass

@@ -3,13 +3,13 @@ Fluxo Estrangeiro de Investimentos na B3 - Processamento de Dados
 Este script processa os dados coletados e gera as análises necessárias.
 """
 
-import sys
+# Bibliotecas
+import pandas as pd
 import os
 import datetime
 
 def carregar_dados(pasta="Dados"):
     """Carrega os dados coletados"""
-    import pandas as pd
     try:
         dados_da_bolsa = pd.read_parquet(f"{pasta}/dados_da_bolsa.parquet")
         cotacoes = pd.read_parquet(f"{pasta}/cotacoes.parquet")
@@ -18,12 +18,26 @@ def carregar_dados(pasta="Dados"):
         print("Arquivos de dados não encontrados. Execute primeiro o script de coleta de dados.")
         return None, None
 
+def _remover_timezone(serie):
+    """Remove timezone de uma Series de datas, se presente."""
+    try:
+        if serie.dt.tz is not None:
+            return serie.dt.tz_localize(None)
+    except Exception:
+        pass
+    return serie
+
 def mesclar_dados(dados_da_bolsa, cotacoes):
     """Mescla os dados de fluxo com as cotações"""
-    import pandas as pd
+    # Verifica se a coluna 'Data' existe no dataframe de cotações
+    if "Data" not in cotacoes.columns:
+        raise KeyError(
+            f"Coluna 'Data' não encontrada em cotacoes. Colunas disponíveis: {list(cotacoes.columns)}"
+        )
+
     # Garantir que os formatos de data são compatíveis
-    dados_da_bolsa["Data"] = dados_da_bolsa["Data"].dt.tz_localize(None)
-    cotacoes["Data"] = cotacoes["Data"].dt.tz_localize(None)
+    dados_da_bolsa["Data"] = _remover_timezone(pd.to_datetime(dados_da_bolsa["Data"], errors='coerce'))
+    cotacoes["Data"] = _remover_timezone(pd.to_datetime(cotacoes["Data"], errors='coerce'))
     
     # Mesclar dados
     fluxo_mais_ibov = pd.merge(cotacoes, dados_da_bolsa, on="Data", how="left")
@@ -36,7 +50,6 @@ def mesclar_dados(dados_da_bolsa, cotacoes):
 
 def calcular_fluxo_acumulado(dados_fluxo, ano_filtro=None):
     """Calcula o fluxo acumulado para o período desejado"""
-    import pandas as pd
     # Filtrar por ano se especificado
     if ano_filtro:
         dados_filtrados = dados_fluxo[dados_fluxo["Data"].dt.year == ano_filtro]
