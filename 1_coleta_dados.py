@@ -58,7 +58,8 @@ def coletar_dados_fluxo():
         raise RuntimeError(f"Falha ao requisitar {url}: {e}") from e
 
     try:
-        tabelas = pd.read_html(response.text)
+        from io import StringIO
+        tabelas = pd.read_html(StringIO(response.text))
         if not tabelas:
             raise ValueError("Nenhuma tabela encontrada na página de fluxo")
         dados_da_bolsa = tabelas[0]
@@ -118,7 +119,13 @@ def coletar_cotacoes(dados_da_bolsa):
     data_busca = primeiro_registro - pd.Timedelta(days=1)
 
     try:
-        cotacoes_raw = yf.download(["^BVSP", "BRL=X"], start=data_busca, auto_adjust=False, progress=False)
+        cotacoes_raw = yf.download(
+            ["^BVSP", "BRL=X"],
+            start=data_busca,
+            auto_adjust=False,
+            progress=False,
+            repair=True
+        )
     except Exception as e:
         raise RuntimeError(f"Falha ao baixar cotações via yfinance: {e}") from e
 

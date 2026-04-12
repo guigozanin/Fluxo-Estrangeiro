@@ -193,46 +193,19 @@ def carregar_dados(pasta="Dados", atualizar=False):
     if arquivos_ausentes or atualizar:
         with st.spinner("Atualizando dados do mercado..."):
             st.info("Coletando dados da B3 e Yahoo Finance...")
-            try:
-                # Importar os scripts diretamente e executar as funções
-                import importlib.util
-                
-                # Importar 1_coleta_dados.py
-                spec1 = importlib.util.spec_from_file_location("coleta_dados", "1_coleta_dados.py")
-                coleta_dados = importlib.util.module_from_spec(spec1)
-                spec1.loader.exec_module(coleta_dados)
-                
-                # Criar pasta e coletar dados
-                pasta_dados = coleta_dados.criar_pasta_dados()
-                dados_bolsa = coleta_dados.coletar_dados_fluxo()
-                dados_bolsa.to_parquet(f"{pasta_dados}/dados_da_bolsa.parquet")
-                cotacoes = coleta_dados.coletar_cotacoes(dados_bolsa)
-                cotacoes.to_parquet(f"{pasta_dados}/cotacoes.parquet")
-                
-                # Importar 2_processa_dados.py
-                spec2 = importlib.util.spec_from_file_location("processa_dados", "2_processa_dados.py")
-                processa_dados = importlib.util.module_from_spec(spec2)
-                spec2.loader.exec_module(processa_dados)
-                
-                # Processar dados
-                processa_dados.processar_dados_para_analise()
-            except Exception as e:
-                st.error(f"Erro ao executar scripts: {str(e)}")
-                raise e
+            # Executar o script de coleta de dados
+            subprocess.run(["python", "1_coleta_dados.py"], check=True)
+            
+            st.info("Processando dados coletados...")
+            # Executar o script de processamento de dados
+            subprocess.run(["python", "2_processa_dados.py"], check=True)
     
     # Carregar os dados processados
-    try:
-        fluxo_completo = pd.read_parquet(f"{pasta}/fluxo_completo.parquet")
-        fluxo_ano_atual = pd.read_parquet(f"{pasta}/fluxo_ano_atual.parquet")
-        fluxo_total = pd.read_parquet(f"{pasta}/fluxo_total.parquet")
-        return fluxo_completo, fluxo_ano_atual, fluxo_total
-    except Exception as e:
-        st.error(f"Erro ao carregar dados processados: {str(e)}")
-        # Criar DataFrames vazios com as colunas esperadas
-        fluxo_completo = pd.DataFrame(columns=["Data", "Estrangeiro", "Ibovespa"])
-        fluxo_ano_atual = pd.DataFrame(columns=["Data", "Estrangeiro", "Ibovespa"])
-        fluxo_total = pd.DataFrame(columns=["Data", "Estrangeiro", "Ibovespa"])
-        return fluxo_completo, fluxo_ano_atual, fluxo_total
+    fluxo_completo = pd.read_parquet(f"{pasta}/fluxo_completo.parquet")
+    fluxo_ano_atual = pd.read_parquet(f"{pasta}/fluxo_ano_atual.parquet")
+    fluxo_total = pd.read_parquet(f"{pasta}/fluxo_total.parquet")
+    
+    return fluxo_completo, fluxo_ano_atual, fluxo_total
 
 def criar_grafico(dados, titulo):
     """Cria um gráfico interativo de barras e linhas para visualização dos dados de fluxo usando Plotly"""
