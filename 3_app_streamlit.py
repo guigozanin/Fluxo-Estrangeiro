@@ -10,6 +10,7 @@ from plotly.subplots import make_subplots
 import datetime
 import os
 import subprocess
+import sys
 import locale
 
 # Configurar localização para português
@@ -193,12 +194,11 @@ def carregar_dados(pasta="Dados", atualizar=False):
     if arquivos_ausentes or atualizar:
         with st.spinner("Atualizando dados do mercado..."):
             st.info("Coletando dados da B3 e Yahoo Finance...")
-            # Executar o script de coleta de dados
-            subprocess.run(["python", "1_coleta_dados.py"], check=True)
+            # Usar sys.executable garante o mesmo Python/venv do Streamlit
+            subprocess.run([sys.executable, "1_coleta_dados.py"], check=True)
             
             st.info("Processando dados coletados...")
-            # Executar o script de processamento de dados
-            subprocess.run(["python", "2_processa_dados.py"], check=True)
+            subprocess.run([sys.executable, "2_processa_dados.py"], check=True)
     
     # Carregar os dados processados
     fluxo_completo = pd.read_parquet(f"{pasta}/fluxo_completo.parquet")
