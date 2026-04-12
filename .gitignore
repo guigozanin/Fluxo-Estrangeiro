@@ -29,3 +29,11 @@ ENV/
 # IDE specific files
 .idea/
 .vscode/
+
+# Arquivos de dados gerados automaticamente pelo GitHub Actions
+# Não versionar localmente para evitar conflitos de merge
+Dados/cotacoes.parquet
+Dados/fluxo_ano_atual.parquet
+Dados/fluxo_completo.parquet
+Dados/fluxo_total.parquet
+# dados_da_bolsa.parquet é versionado pelo Actions — não ignorar localmente
