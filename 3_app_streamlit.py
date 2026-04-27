@@ -13,6 +13,9 @@ import subprocess
 import sys
 import locale
 
+# Garantir que o diretório de trabalho é sempre o da pasta do app
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # Configurar localização para português
 try:
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
@@ -179,6 +182,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def _ler_parquets(pasta):
+    """Lê os parquets do disco (com cache de 1h)"""
+    fluxo_completo  = pd.read_parquet(f"{pasta}/fluxo_completo.parquet").reset_index(drop=True)
+    fluxo_ano_atual = pd.read_parquet(f"{pasta}/fluxo_ano_atual.parquet").reset_index(drop=True)
+    fluxo_total     = pd.read_parquet(f"{pasta}/fluxo_total.parquet").reset_index(drop=True)
+    return fluxo_completo, fluxo_ano_atual, fluxo_total
+
 def carregar_dados(pasta="Dados", atualizar=False):
     """Carrega os dados processados ou executa a atualização se solicitado"""
     arquivos_necessarios = [
@@ -194,18 +205,15 @@ def carregar_dados(pasta="Dados", atualizar=False):
     if arquivos_ausentes or atualizar:
         with st.spinner("Atualizando dados do mercado..."):
             st.info("Coletando dados da B3 e Yahoo Finance...")
-            # Usar sys.executable garante o mesmo Python/venv do Streamlit
             subprocess.run([sys.executable, "1_coleta_dados.py"], check=True)
             
             st.info("Processando dados coletados...")
             subprocess.run([sys.executable, "2_processa_dados.py"], check=True)
+        
+        # Limpar cache para forçar releitura após atualização
+        _ler_parquets.clear()
     
-    # Carregar os dados processados
-    fluxo_completo = pd.read_parquet(f"{pasta}/fluxo_completo.parquet")
-    fluxo_ano_atual = pd.read_parquet(f"{pasta}/fluxo_ano_atual.parquet")
-    fluxo_total = pd.read_parquet(f"{pasta}/fluxo_total.parquet")
-    
-    return fluxo_completo, fluxo_ano_atual, fluxo_total
+    return _ler_parquets(pasta)
 
 def criar_grafico(dados, titulo):
     """Cria um gráfico interativo de barras e linhas para visualização dos dados de fluxo usando Plotly"""
@@ -311,6 +319,11 @@ def main():
     try:
         fluxo_completo, fluxo_ano_atual, fluxo_total = carregar_dados(atualizar=atualizar_dados)
         
+        # Garantir que fluxo_ano_atual é do ano corrente (proteção contra parquet desatualizado)
+        ano_atual = datetime.datetime.now().year
+        if fluxo_ano_atual.empty or fluxo_ano_atual["Data"].dt.year.max() != ano_atual:
+            fluxo_ano_atual = fluxo_total[fluxo_total["Data"].dt.year == ano_atual].reset_index(drop=True)
+
         # Obter a data mais recente dos dados
         data_max = fluxo_completo["Data"].max()
         # Verificar se a data é NaT (Not a Time)
@@ -528,6 +541,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
 
 
 
