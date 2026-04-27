@@ -129,8 +129,8 @@ if __name__ == "__main__":
         print(f"Dados do fluxo estrangeiro salvos em {pasta}/dados_da_bolsa.parquet")
 
         cotacoes = coletar_cotacoes(dados_da_bolsa)
-        cotacoes.to_parquet(f"{pasta}/cotacoes.parquet")
-        print(f"Cotacoes salvas em {pasta}/cotacoes.parquet")
+        cotacoes.to_parquet(f"{pasta}/dados_da_bolsa_final.parquet")
+        print(f"Cotacoes salvas em {pasta}/dados_da_bolsa_final.parquet")
 
         print("Coleta de dados concluida com sucesso!")
     except Exception as e:
