@@ -12,7 +12,7 @@ def carregar_dados(pasta="Dados"):
     """Carrega os dados coletados"""
     try:
         dados_da_bolsa = pd.read_parquet(f"{pasta}/dados_da_bolsa.parquet")
-        cotacoes = pd.read_parquet(f"{pasta}/cotacoes.parquet")
+        cotacoes = pd.read_parquet(f"{pasta}/dados_da_bolsa_final.parquet")
         return dados_da_bolsa, cotacoes
     except FileNotFoundError:
         print("Arquivos de dados não encontrados. Execute primeiro o script de coleta de dados.")
@@ -99,7 +99,7 @@ def processar_dados_para_analise():
     
     # Calcular dados acumulados totais
     fluxo_total = calcular_fluxo_acumulado(fluxo_completo)
-    fluxo_total.to_parquet(f"{pasta}/fluxo_total.parquet")
+    fluxo_total.to_parquet(f"{pasta}/dados_da_bolsa_acumulado.parquet")
     
     return fluxo_ano_atual
 
