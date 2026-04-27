@@ -41,8 +41,16 @@ def mesclar_dados(dados_da_bolsa, cotacoes):
     
     # Mesclar dados
     fluxo_mais_ibov = pd.merge(cotacoes, dados_da_bolsa, on="Data", how="left")
-    fluxo_mais_ibov.dropna(inplace=True)
-    
+
+    # Preencher Dólar com forward/backward fill caso haja falhas de download (ex: rate limit)
+    if "Dólar" in fluxo_mais_ibov.columns:
+        fluxo_mais_ibov["Dólar"] = (
+            fluxo_mais_ibov["Dólar"].ffill().bfill()
+        )
+
+    # Remover apenas linhas sem Ibovespa ou Estrangeiro (colunas essenciais)
+    fluxo_mais_ibov.dropna(subset=["Ibovespa", "Estrangeiro"], inplace=True)
+
     # Calcular fluxo em dólar
     fluxo_mais_ibov["Estrangeiro_em_dolar"] = fluxo_mais_ibov["Estrangeiro"] / fluxo_mais_ibov["Dólar"]
     
@@ -99,7 +107,7 @@ def processar_dados_para_analise():
     
     # Calcular dados acumulados totais
     fluxo_total = calcular_fluxo_acumulado(fluxo_completo)
-    fluxo_total.to_parquet(f"{pasta}/dados_da_bolsa_acumulado.parquet")
+    fluxo_total.to_parquet(f"{pasta}/fluxo_total.parquet")
     
     return fluxo_ano_atual
 
